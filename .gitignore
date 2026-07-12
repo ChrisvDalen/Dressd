@@ -14,6 +14,15 @@ dist/
 npm-debug.log*
 yarn-error.log*
 
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local H2 dev databases + stored media
+data/
+
 # Environment / secrets
 .env
 .env.local

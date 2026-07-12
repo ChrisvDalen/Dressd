@@ -1,0 +1,44 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: avatar-service
+  datasource:
+    url: jdbc:h2:file:./data/avatar;AUTO_SERVER=TRUE;MODE=PostgreSQL
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+dressd:
+  cors:
+    allowed-origins: http://localhost:4200
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/dressd}
+    username: ${DB_USER:dressd}
+    password: ${DB_PASSWORD:dressd}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+dressd:
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:4200}

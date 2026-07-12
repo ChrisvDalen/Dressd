@@ -1,0 +1,7 @@
+{
+  "/api/scan": { "target": "http://localhost:8081", "secure": false },
+  "/api/garments": { "target": "http://localhost:8081", "secure": false },
+  "/media": { "target": "http://localhost:8081", "secure": false },
+  "/api/avatars": { "target": "http://localhost:8082", "secure": false },
+  "/api/outfits": { "target": "http://localhost:8083", "secure": false }
+}

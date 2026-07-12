@@ -1,0 +1,44 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.9rem 1.5rem;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(6px);
+  z-index: 10;
+}
+
+.brand {
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: #6a4cff;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+nav {
+  display: flex;
+  gap: 1.1rem;
+}
+
+nav a {
+  color: #555;
+  text-decoration: none;
+  font-weight: 500;
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+}
+
+nav a.active {
+  color: #6a4cff;
+  border-bottom-color: #6a4cff;
+}
+
+main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
