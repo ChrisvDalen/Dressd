@@ -1,0 +1,32 @@
+# Java / Maven / Gradle
+target/
+build/
+*.class
+*.jar
+*.war
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+yarn-error.log*
+
+# Environment / secrets
+.env
+.env.local
+*.local
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
