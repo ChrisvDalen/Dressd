@@ -1,6 +1,6 @@
 # Dressd Backend
 
-Java 21 / Spring Boot microservices (SPEC.md section 3). A Maven multi-module
+Java 25 / Spring Boot 3.5 microservices (SPEC.md section 3). A Maven multi-module
 reactor with one deployable per bounded context plus a small shared `common`
 module.
 

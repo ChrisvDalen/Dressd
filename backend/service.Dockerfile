@@ -1,6 +1,6 @@
 # Shared multi-stage build for the Spring Boot services.
 # Pass the module name via --build-arg SERVICE=<wardrobe-service|avatar-service|outfit-composer-service>.
-FROM maven:3.9-eclipse-temurin-21 AS build
+FROM maven:3.9-eclipse-temurin-25 AS build
 WORKDIR /workspace
 COPY pom.xml .
 COPY common/pom.xml common/pom.xml
@@ -13,7 +13,7 @@ COPY . .
 ARG SERVICE
 RUN mvn -q -B -pl ${SERVICE} -am package -DskipTests
 
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:25-jre
 WORKDIR /app
 ARG SERVICE
 COPY --from=build /workspace/${SERVICE}/target/*.jar app.jar

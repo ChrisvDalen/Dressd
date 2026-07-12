@@ -23,10 +23,10 @@ wardrobe-service  avatar-service  outfit-composer   garment-recognition
 
 | Component | Stack | Port | Docs |
 |---|---|---|---|
-| Web frontend | Angular 19, standalone components, signals, NgRx Signal Store | 4200 (dev) / 8080 (nginx) | [`web/`](web) |
-| wardrobe-service | Java 21, Spring Boot | 8081 | [`backend/README.md`](backend/README.md) |
-| avatar-service | Java 21, Spring Boot | 8082 | [`backend/README.md`](backend/README.md) |
-| outfit-composer-service | Java 21, Spring Boot | 8083 | [`backend/README.md`](backend/README.md) |
+| Web frontend | Angular 22 (zoneless), standalone components, signals, NgRx Signal Store | 4200 (dev) / 8080 (nginx) | [`web/`](web) |
+| wardrobe-service | Java 25, Spring Boot 3.5 | 8081 | [`backend/README.md`](backend/README.md) |
+| avatar-service | Java 25, Spring Boot 3.5 | 8082 | [`backend/README.md`](backend/README.md) |
+| outfit-composer-service | Java 25, Spring Boot 3.5 | 8083 | [`backend/README.md`](backend/README.md) |
 | garment-recognition-service | Python 3.11, FastAPI, Pillow (+ optional rembg) | 8000 | [`recognition-service/README.md`](recognition-service/README.md) |
 | Mobile | TBD — see [`docs/MOBILE.md`](docs/MOBILE.md) (deferred, Phase 3) | – | [`docs/MOBILE.md`](docs/MOBILE.md) |
 
@@ -57,7 +57,9 @@ cd backend && mvn -pl wardrobe-service spring-boot:run
               mvn -pl outfit-composer-service spring-boot:run
 
 # 3. web (dev server proxies /api and /media to the services)
-cd web && npm install && npm start   # http://localhost:4200
+#    Angular 22 CLI needs Node >= 22.22.3 (or 24.x).
+#    NgRx has no v22 yet, so install with --legacy-peer-deps.
+cd web && npm install --legacy-peer-deps && npm start   # http://localhost:4200
 ```
 
 ## Test
@@ -65,7 +67,7 @@ cd web && npm install && npm start   # http://localhost:4200
 ```bash
 cd backend && mvn test                         # Java services (7 tests)
 cd recognition-service && . .venv/bin/activate && pytest   # recognition (6 tests)
-cd web && npm test -- --watch=false            # Angular (Karma)
+cd web && npx ng test --watch=false            # Angular 22 (Vitest)
 ```
 
 ## What's implemented (P0 must-haves)
