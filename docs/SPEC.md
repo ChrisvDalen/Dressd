@@ -62,7 +62,7 @@ outfit samenstellen via swipe-interactie op een 2D poppetje.
       └────────────┘        └──────────────┘
 ```
 
-### Services (Spring Boot, Java 21)
+### Services (Spring Boot, Java 25)
 
 **wardrobe-service**
 - CRUD op `Garment` entiteiten
@@ -209,8 +209,8 @@ Outfit
 
 | Laag | Keuze |
 |---|---|
-| Backend | Java 21, Spring Boot, microservices |
-| Web frontend | Angular (signals, Signal Store, standalone components) |
+| Backend | Java 25, Spring Boot 3.5, microservices |
+| Web frontend | Angular 22 (zoneless, signals, Signal Store, standalone components) |
 | Mobiel | TBD (zie open vragen) |
 | Database | Postgres (metadata) |
 | Storage | Object storage voor PNG's (Azure Blob / S3) |

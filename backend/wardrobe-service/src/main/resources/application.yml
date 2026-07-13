@@ -1,0 +1,63 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: wardrobe-service
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 15MB
+  datasource:
+    url: jdbc:h2:file:./data/wardrobe;AUTO_SERVER=TRUE;MODE=PostgreSQL
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate.format_sql: false
+
+dressd:
+  recognition:
+    base-url: http://localhost:8000
+    enabled: true
+  storage:
+    local:
+      root: ./data/media
+      public-base-url: /media
+  cors:
+    allowed-origins: http://localhost:4200
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/dressd}
+    username: ${DB_USER:dressd}
+    password: ${DB_PASSWORD:dressd}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+dressd:
+  recognition:
+    base-url: ${RECOGNITION_URL:http://recognition-service:8000}
+  storage:
+    local:
+      root: ${STORAGE_ROOT:/data/media}
+      public-base-url: ${STORAGE_PUBLIC_URL:/media}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:4200}
