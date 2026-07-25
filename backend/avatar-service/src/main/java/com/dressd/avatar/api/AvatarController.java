@@ -4,7 +4,7 @@ import com.dressd.avatar.api.dto.AvatarResponse;
 import com.dressd.avatar.api.dto.SaveAvatarRequest;
 import com.dressd.avatar.domain.BodyTypeCatalog;
 import com.dressd.avatar.service.AvatarService;
-import com.dressd.common.web.OwnerContext;
+import com.dressd.common.web.CurrentOwner;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,46 +29,45 @@ public class AvatarController {
         this.service = service;
     }
 
-    /** The fixed body-type presets — no auth needed, this is static catalog data. */
+    /** The fixed body-type presets — static catalog data, listed in dressd.auth.public-paths. */
     @GetMapping("/body-types")
     public List<BodyTypeCatalog.Preset> bodyTypes() {
         return BodyTypeCatalog.all();
     }
 
+    /**
+     * An owner holds at most one avatar per body type, so this list is bounded by
+     * the catalog and needs no pagination.
+     */
     @GetMapping
-    public List<AvatarResponse> list(
-            @RequestHeader(value = OwnerContext.OWNER_HEADER, required = false) String owner) {
-        return service.list(OwnerId.resolve(owner)).stream().map(AvatarResponse::from).toList();
+    public List<AvatarResponse> list(@CurrentOwner UUID ownerId) {
+        return service.list(ownerId).stream().map(AvatarResponse::from).toList();
     }
 
     @GetMapping("/{id}")
-    public AvatarResponse get(
-            @RequestHeader(value = OwnerContext.OWNER_HEADER, required = false) String owner,
-            @PathVariable UUID id) {
-        return AvatarResponse.from(service.get(OwnerId.resolve(owner), id));
+    public AvatarResponse get(@CurrentOwner UUID ownerId, @PathVariable UUID id) {
+        return AvatarResponse.from(service.get(ownerId, id));
     }
 
     @PostMapping
     public ResponseEntity<AvatarResponse> create(
-            @RequestHeader(value = OwnerContext.OWNER_HEADER, required = false) String owner,
+            @CurrentOwner UUID ownerId,
             @Valid @RequestBody SaveAvatarRequest request) {
-        AvatarResponse body = AvatarResponse.from(service.create(OwnerId.resolve(owner), request));
+        AvatarResponse body = AvatarResponse.from(service.create(ownerId, request));
         return ResponseEntity.created(URI.create("/api/avatars/" + body.id())).body(body);
     }
 
     @PutMapping("/{id}")
     public AvatarResponse update(
-            @RequestHeader(value = OwnerContext.OWNER_HEADER, required = false) String owner,
+            @CurrentOwner UUID ownerId,
             @PathVariable UUID id,
             @Valid @RequestBody SaveAvatarRequest request) {
-        return AvatarResponse.from(service.update(OwnerId.resolve(owner), id, request));
+        return AvatarResponse.from(service.update(ownerId, id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
-            @RequestHeader(value = OwnerContext.OWNER_HEADER, required = false) String owner,
-            @PathVariable UUID id) {
-        service.delete(OwnerId.resolve(owner), id);
+    public ResponseEntity<Void> delete(@CurrentOwner UUID ownerId, @PathVariable UUID id) {
+        service.delete(ownerId, id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,9 +1,22 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:avatar;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    url: jdbc:h2:mem:avatar;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
     username: sa
     password: ""
     driver-class-name: org.h2.Driver
+  # Tests run the real migrations, so a broken migration fails the build rather
+  # than production.
+  flyway:
+    enabled: true
+    schemas: avatar
+    default-schema: avatar
+    create-schemas: true
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
+    properties:
+      hibernate.default_schema: avatar
+
+management:
+  tracing:
+    enabled: false

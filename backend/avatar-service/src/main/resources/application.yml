@@ -5,16 +5,30 @@ spring:
   application:
     name: avatar-service
   datasource:
-    url: jdbc:h2:file:./data/avatar;AUTO_SERVER=TRUE;MODE=PostgreSQL
+    url: jdbc:h2:file:./data/avatar;AUTO_SERVER=TRUE;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
     username: sa
     password: ""
     driver-class-name: org.h2.Driver
+  flyway:
+    enabled: true
+    # Each service owns its own schema, so a shared Postgres instance still keeps
+    # the services independently migratable (see docs/ADR.md, ADR-007).
+    schemas: avatar
+    default-schema: avatar
+    create-schemas: true
   jpa:
+    # Flyway owns the schema; Hibernate only checks the mapping still matches it.
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     open-in-view: false
+    properties:
+      hibernate.default_schema: avatar
 
 dressd:
+  auth:
+    mode: DEV
+    # The body-type catalog is static reference data, readable without a credential.
+    public-paths: /actuator/**, /error, /api/avatars/body-types
   cors:
     allowed-origins: http://localhost:4200
 
@@ -22,7 +36,18 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+
+logging:
+  pattern:
+    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}] "
 
 ---
 spring:
@@ -36,9 +61,25 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+# One JSON line per log event, so a collector can parse it without regexes.
+logging:
+  structured:
+    format:
+      console: ecs
+
 dressd:
+  auth:
+    # Fails closed: TOKEN mode refuses to start without AUTH_SECRET, rather than
+    # silently trusting a client-supplied X-Owner-Id header.
+    mode: ${AUTH_MODE:TOKEN}
+    secret: ${AUTH_SECRET:}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:4200}
+
+management:
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLE_RATE:0.1}

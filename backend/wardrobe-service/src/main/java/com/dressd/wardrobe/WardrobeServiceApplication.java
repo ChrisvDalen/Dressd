@@ -2,11 +2,10 @@ package com.dressd.wardrobe;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import com.dressd.wardrobe.recognition.RecognitionProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @SpringBootApplication
-@EnableConfigurationProperties(RecognitionProperties.class)
+@ConfigurationPropertiesScan
 public class WardrobeServiceApplication {
 
     public static void main(String[] args) {
