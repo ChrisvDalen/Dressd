@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -72,9 +73,19 @@ public class GlobalExceptionHandler {
     /**
      * Catch-all so unexpected failures return the same shape as everything else,
      * with the detail confined to the logs rather than the response body.
+     *
+     * <p>Spring MVC's own exceptions ({@code 405}, {@code 415}, missing static
+     * resources, …) implement {@link ErrorResponse} and already carry the right
+     * status. Because {@code @ExceptionHandler} methods are consulted before
+     * Spring's default resolvers, they reach this method — so their status is
+     * honoured here rather than flattened into a {@code 500}.
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleUnexpected(Exception ex, HttpServletRequest req) {
+        if (ex instanceof ErrorResponse errorResponse) {
+            HttpStatus status = HttpStatus.valueOf(errorResponse.getStatusCode().value());
+            return build(status, ex.getMessage(), req);
+        }
         log.error("Unhandled exception for {} {}", req.getMethod(), req.getRequestURI(), ex);
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error", req);
     }

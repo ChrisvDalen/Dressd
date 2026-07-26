@@ -15,7 +15,7 @@ without a single GPU render on the server.
 ![Node](https://img.shields.io/badge/Node-%E2%89%A522.22.3%20%2F%2024-339933)
 ![Python](https://img.shields.io/badge/Python-3.11%20(FastAPI)-3776AB)
 ![Postgres](https://img.shields.io/badge/Postgres-16-4169E1)
-![Tests](https://img.shields.io/badge/tests-82%20green-brightgreen)
+![Tests](https://img.shields.io/badge/tests-88%20green-brightgreen)
 ![Rendering](https://img.shields.io/badge/rendering-client--side%20SVG-blueviolet)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
@@ -317,7 +317,7 @@ Prerequisites and the full test commands are in
 
 | Suite                  | Command                                    | Count |
 | ---------------------- | ------------------------------------------ | ----- |
-| Backend (all services) | `cd backend && mvn verify`                 | 44    |
+| Backend (all services) | `cd backend && mvn verify`                 | 50    |
 | Web                    | `cd web && npm test`                       | 28    |
 | Recognition            | `cd recognition-service && pytest`         | 10    |
 

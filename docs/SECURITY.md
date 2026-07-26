@@ -81,6 +81,11 @@ openssl rand -base64 48
 
 Honest list of what is *not* addressed:
 
+- **`/media/**` is world-readable.** Stored cut-outs are served by a static handler
+  with no owner check — anyone holding the URL can fetch the image. The paths embed
+  a random UUID, so this is obscurity rather than authorisation. Closing it means
+  serving media through an authenticated controller, or issuing signed short-lived
+  URLs once storage moves to Blob/S3.
 - **No token revocation.** Compromised tokens stay valid until they expire.
 - **No rate limiting.** The scan endpoint runs image processing on request, which is
   the obvious thing to abuse.
