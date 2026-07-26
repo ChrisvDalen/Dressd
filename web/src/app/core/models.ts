@@ -22,6 +22,17 @@ export const SWIPE_CATEGORIES: GarmentCategory[] = ['LAYER', 'TOP', 'BOTTOM', 'S
 
 export type Season = 'SUMMER' | 'WINTER' | 'ALL';
 
+/** Envelope every paginated list endpoint returns (com.dressd.common.web.PageResponse). */
+export interface Page<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}
+
 export type BodyType = 'SLIM' | 'AVERAGE' | 'CURVY' | 'CUSTOM';
 
 export interface AnchorPoints {

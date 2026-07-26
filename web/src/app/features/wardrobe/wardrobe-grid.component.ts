@@ -49,6 +49,11 @@ import { WardrobeStore } from '../../core/wardrobe.store';
       @if (store.error()) {
         <p class="err">{{ store.error() }}</p>
       }
+      @if (store.truncated()) {
+        <p class="muted">
+          Showing the first {{ store.count() }} items — narrow the filters to see the rest.
+        </p>
+      }
 
       @if (store.loading()) {
         <p class="muted">Loading…</p>

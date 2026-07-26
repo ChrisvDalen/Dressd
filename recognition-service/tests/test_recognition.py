@@ -1,11 +1,12 @@
 import base64
 import io
 
+import pytest
 from fastapi.testclient import TestClient
 from PIL import Image
 
-from app.main import app
-from app.recognition import recognize
+from app.main import MAX_UPLOAD_BYTES, app
+from app.recognition import ImageRejected, recognize
 
 client = TestClient(app)
 
@@ -68,3 +69,35 @@ def test_tall_garment_classified_as_bottom():
 def test_empty_upload_rejected():
     resp = client.post("/recognize", files={"file": ("empty.png", b"", "image/png")})
     assert resp.status_code == 400
+
+
+def test_non_image_content_type_rejected():
+    resp = client.post(
+        "/recognize", files={"file": ("payload.sh", b"#!/bin/sh\nrm -rf /", "text/x-shellscript")}
+    )
+    assert resp.status_code == 415
+    assert "Unsupported content type" in resp.json()["detail"]
+
+
+def test_oversized_upload_rejected_without_being_buffered_whole():
+    # One byte over the limit is enough; the reader aborts mid-stream.
+    oversized = b"\x00" * (MAX_UPLOAD_BYTES + 1)
+    resp = client.post("/recognize", files={"file": ("big.png", oversized, "image/png")})
+    assert resp.status_code == 413
+
+
+def test_declared_image_that_is_not_an_image_is_rejected():
+    resp = client.post(
+        "/recognize", files={"file": ("lies.png", b"this is definitely not a png", "image/png")}
+    )
+    assert resp.status_code == 422
+
+
+def test_decompression_bomb_rejected_before_decoding():
+    # A ~50KB PNG that expands to 100M pixels — the classic decompression bomb.
+    bomb = Image.new("L", (10_000, 10_000))
+    buffer = io.BytesIO()
+    bomb.save(buffer, format="PNG")
+
+    with pytest.raises(ImageRejected, match="pixels"):
+        recognize(buffer.getvalue())

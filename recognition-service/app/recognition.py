@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import base64
 import io
-import math
 from dataclasses import dataclass
 
 import numpy as np
@@ -26,6 +25,17 @@ from PIL import Image
 MAX_DIM = 512
 # Categories must match com.dressd.common.domain.GarmentCategory.
 CATEGORIES = ("TOP", "BOTTOM", "SOCKS", "LAYER", "SHOES", "ACCESSORY")
+
+# A small file can still describe an enormous bitmap, so the pixel count is
+# checked from the header before any decoding happens. 40MP comfortably covers
+# any phone camera while capping the decode at a few hundred MB.
+MAX_PIXELS = 40_000_000
+# Belt and braces: stop Pillow decoding a bomb even if it reaches it another way.
+Image.MAX_IMAGE_PIXELS = MAX_PIXELS
+
+
+class ImageRejected(ValueError):
+    """The upload is not an image we are willing to decode."""
 
 try:  # rembg is optional and heavy; guarded so the service always starts.
     from rembg import remove as _rembg_remove  # type: ignore
@@ -48,7 +58,7 @@ class Recognition:
 
 
 def recognize(image_bytes: bytes) -> Recognition:
-    image = Image.open(io.BytesIO(image_bytes)).convert("RGBA")
+    image = _open_safely(image_bytes)
     image = _downscale(image)
 
     cutout = _remove_background(image)
@@ -61,6 +71,35 @@ def recognize(image_bytes: bytes) -> Recognition:
     buffer = io.BytesIO()
     cutout.save(buffer, format="PNG")
     return Recognition(category, color_tag, pattern, buffer.getvalue())
+
+
+def _open_safely(image_bytes: bytes) -> Image.Image:
+    """Decode an upload, refusing anything that is not a sanely sized image.
+
+    ``Image.open`` only parses the header, so the pixel count can be vetted
+    before committing memory to a full decode.
+    """
+    try:
+        image = Image.open(io.BytesIO(image_bytes))
+    except Image.DecompressionBombError as exc:
+        # Pillow refuses outright past 2x its own cap.
+        raise ImageRejected(f"Image exceeds the {MAX_PIXELS} pixels limit") from exc
+    except Exception as exc:  # noqa: BLE001 - any decoder failure means "not an image"
+        raise ImageRejected("Not a readable image") from exc
+
+    # Catches the band between our cap and Pillow's hard refusal, where Pillow
+    # only warns.
+    pixels = image.width * image.height
+    if pixels > MAX_PIXELS:
+        raise ImageRejected(
+            f"Image is {image.width}x{image.height} ({pixels} pixels); "
+            f"the limit is {MAX_PIXELS} pixels"
+        )
+
+    try:
+        return image.convert("RGBA")
+    except Exception as exc:  # noqa: BLE001 - truncated/corrupt payloads land here
+        raise ImageRejected("Image could not be decoded") from exc
 
 
 def _downscale(image: Image.Image) -> Image.Image:
