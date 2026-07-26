@@ -40,9 +40,7 @@ import { AvatarCanvasComponent, PlacedGarment } from '../builder/avatar-canvas.c
                 <button class="del" (click)="remove(o)" aria-label="Delete">🗑</button>
               </figcaption>
               @if (missingCount(o) > 0) {
-                <p class="missing">
-                  {{ missingCount(o) }} item(s) no longer in your wardrobe
-                </p>
+                <p class="missing">{{ missingCount(o) }} item(s) no longer in your wardrobe</p>
               }
             </figure>
           }

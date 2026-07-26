@@ -209,14 +209,17 @@ describe('WardrobeStore', () => {
 
   describe('derived state', () => {
     it('buckets garments by category and counts them', async () => {
-      api.pages = [
-        pageOf([garment('g1', 'TOP'), garment('g2', 'SHOES'), garment('g3', 'TOP')]),
-      ];
+      api.pages = [pageOf([garment('g1', 'TOP'), garment('g2', 'SHOES'), garment('g3', 'TOP')])];
 
       await store.loadAll();
 
       expect(store.count()).toBe(3);
-      expect(store.byCategory().get('TOP')?.map((g) => g.id)).toEqual(['g1', 'g3']);
+      expect(
+        store
+          .byCategory()
+          .get('TOP')
+          ?.map((g) => g.id),
+      ).toEqual(['g1', 'g3']);
       expect(store.byCategory().get('SHOES')).toHaveLength(1);
       expect(store.byCategory().get('BOTTOM')).toBeUndefined();
       expect(store.garmentsInCategory('TOP')).toHaveLength(2);

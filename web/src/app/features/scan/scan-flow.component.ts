@@ -1,22 +1,10 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  OnDestroy,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, ElementRef, OnDestroy, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { GarmentService } from '../../core/garment.service';
-import {
-  GarmentCategory,
-  ScanResult,
-  Season,
-  WEARABLE_CATEGORIES,
-} from '../../core/models';
+import { GarmentCategory, ScanResult, Season, WEARABLE_CATEGORIES } from '../../core/models';
 import { WardrobeStore } from '../../core/wardrobe.store';
 
 type Phase = 'capture' | 'processing' | 'confirm';
@@ -64,7 +52,10 @@ type Phase = 'capture' | 'processing' | 'confirm';
 
       @if (phase() === 'confirm' && result()) {
         <div class="confirm">
-          <div class="preview" [style.background]="'repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50% / 20px 20px'">
+          <div
+            class="preview"
+            [style.background]="'repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50% / 20px 20px'"
+          >
             <img [src]="result()!.imageUrl" alt="Cut-out preview" />
           </div>
           <form (submit)="$event.preventDefault(); confirm()">

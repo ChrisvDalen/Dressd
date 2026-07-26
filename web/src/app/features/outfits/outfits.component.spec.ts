@@ -130,10 +130,7 @@ describe('OutfitsComponent', () => {
   });
 
   it('says nothing when every layer still resolves', async () => {
-    const { element } = await render(
-      [outfit('o1', ['g1', 'g2'])],
-      [garment('g1'), garment('g2')],
-    );
+    const { element } = await render([outfit('o1', ['g1', 'g2'])], [garment('g1'), garment('g2')]);
 
     expect(element.textContent).not.toContain('no longer in your wardrobe');
   });

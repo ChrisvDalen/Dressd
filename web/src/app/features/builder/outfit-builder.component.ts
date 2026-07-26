@@ -202,9 +202,21 @@ export class OutfitBuilderComponent implements OnInit {
     } catch {
       // Body types are static; if the avatar service is down we still render.
       this.bodyTypes.set([
-        { bodyType: 'SLIM', label: 'Slim', proportions: { height: 1.02, shoulderWidth: 0.9, hipWidth: 0.88 } },
-        { bodyType: 'AVERAGE', label: 'Average', proportions: { height: 1, shoulderWidth: 1, hipWidth: 1 } },
-        { bodyType: 'CURVY', label: 'Curvy', proportions: { height: 0.98, shoulderWidth: 1.05, hipWidth: 1.15 } },
+        {
+          bodyType: 'SLIM',
+          label: 'Slim',
+          proportions: { height: 1.02, shoulderWidth: 0.9, hipWidth: 0.88 },
+        },
+        {
+          bodyType: 'AVERAGE',
+          label: 'Average',
+          proportions: { height: 1, shoulderWidth: 1, hipWidth: 1 },
+        },
+        {
+          bodyType: 'CURVY',
+          label: 'Curvy',
+          proportions: { height: 0.98, shoulderWidth: 1.05, hipWidth: 1.15 },
+        },
       ]);
     }
   }

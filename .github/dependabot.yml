@@ -1,0 +1,57 @@
+version: 2
+
+updates:
+  - package-ecosystem: maven
+    directory: /backend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # Spring Boot's modules move in lockstep; one PR per release, not twenty.
+      spring:
+        patterns:
+          - "org.springframework*"
+          - "io.micrometer:*"
+      test:
+        patterns:
+          - "org.junit*"
+          - "org.assertj:*"
+        dependency-type: development
+
+  - package-ecosystem: npm
+    directory: /web
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      angular:
+        patterns:
+          - "@angular*"
+          - "@schematics/*"
+          - "typescript"
+      testing:
+        patterns:
+          - "vitest"
+          - "jsdom"
+        dependency-type: development
+
+  - package-ecosystem: pip
+    directory: /recognition-service
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+
+  # Only the two standard `Dockerfile` names are listed: Dependabot does not pick
+  # up backend/service.Dockerfile, so bump its base images alongside the Java
+  # version when Temurin publishes a new release.
+  - package-ecosystem: docker
+    directories:
+      - /web
+      - /recognition-service
+    schedule:
+      interval: weekly

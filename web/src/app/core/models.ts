@@ -1,12 +1,6 @@
 // Domain types mirrored from the backend (SPEC.md section 4).
 
-export type GarmentCategory =
-  | 'TOP'
-  | 'BOTTOM'
-  | 'SOCKS'
-  | 'LAYER'
-  | 'SHOES'
-  | 'ACCESSORY';
+export type GarmentCategory = 'TOP' | 'BOTTOM' | 'SOCKS' | 'LAYER' | 'SHOES' | 'ACCESSORY';
 
 export const WEARABLE_CATEGORIES: GarmentCategory[] = [
   'TOP',

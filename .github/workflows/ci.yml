@@ -1,0 +1,143 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, "claude/**"]
+  pull_request:
+  workflow_dispatch:
+
+# A new push to the same branch supersedes any run still in flight.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (Java ${{ matrix.java }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: ["25"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+
+      # `verify` runs the integration tests, which apply the real Flyway
+      # migrations — so a broken migration fails here rather than on deploy.
+      - name: Build and test
+        working-directory: backend
+        run: mvn -B --no-transfer-progress verify
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-reports
+          path: backend/*/target/surefire-reports/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  web:
+    name: Web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          # Angular 22 requires >= 22.22.3 / 24.15.0.
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  recognition:
+    name: Recognition service
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: recognition-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: recognition-service/requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Test
+        run: python -m pytest -q
+
+  images:
+    name: Container images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate compose file
+        run: docker compose config -q
+
+      # Building every image is what catches a Dockerfile that no longer works —
+      # the compose file alone cannot.
+      - name: Build recognition image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./recognition-service
+          push: false
+          cache-from: type=gha,scope=recognition
+          cache-to: type=gha,mode=max,scope=recognition
+
+      - name: Build web image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          push: false
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+
+      # The three service images come from one Dockerfile differing only by the
+      # SERVICE arg, and the backend job already compiles all three modules — so
+      # building the most involved one is enough to prove the Dockerfile works.
+      - name: Build service image (wardrobe-service)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/service.Dockerfile
+          build-args: |
+            SERVICE=wardrobe-service
+            SERVICE_PORT=8081
+          push: false
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend

@@ -1,8 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { GarmentService } from './garment.service';
 import { Garment, Page } from './models';
@@ -60,7 +57,8 @@ describe('GarmentService', () => {
   });
 
   it('maps filters and paging onto query parameters', () => {
-    service.list({ category: 'SHOES', color: '#33', season: 'WINTER' }, { page: 2, size: 50 })
+    service
+      .list({ category: 'SHOES', color: '#33', season: 'WINTER' }, { page: 2, size: 50 })
       .subscribe();
 
     const req = http.expectOne((r) => r.url === '/api/garments');
@@ -84,9 +82,9 @@ describe('GarmentService', () => {
     let received: Page<Garment> | undefined;
     service.list().subscribe((p) => (received = p));
 
-    http.expectOne((r) => r.url === '/api/garments').flush(
-      page([garment('g1')], { totalElements: 7, totalPages: 4, last: false }),
-    );
+    http
+      .expectOne((r) => r.url === '/api/garments')
+      .flush(page([garment('g1')], { totalElements: 7, totalPages: 4, last: false }));
 
     expect(received?.content).toHaveLength(1);
     expect(received?.totalElements).toBe(7);

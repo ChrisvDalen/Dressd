@@ -1,19 +1,8 @@
 import { computed, inject } from '@angular/core';
-import {
-  patchState,
-  signalStore,
-  withComputed,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { firstValueFrom } from 'rxjs';
 import { GarmentService, WardrobeFilter } from './garment.service';
-import {
-  CreateGarmentRequest,
-  Garment,
-  GarmentCategory,
-  UpdateGarmentRequest,
-} from './models';
+import { CreateGarmentRequest, Garment, GarmentCategory, UpdateGarmentRequest } from './models';
 
 /** Matches the server's maximum page size (com.dressd.common.web.PageRequests). */
 const MAX_PAGE_SIZE = 200;
