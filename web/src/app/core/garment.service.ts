@@ -5,6 +5,7 @@ import {
   CreateGarmentRequest,
   Garment,
   GarmentCategory,
+  Page,
   ScanResult,
   Season,
   UpdateGarmentRequest,
@@ -14,6 +15,11 @@ export interface WardrobeFilter {
   category?: GarmentCategory | null;
   color?: string | null;
   season?: Season | null;
+}
+
+export interface PageRequest {
+  page?: number;
+  size?: number;
 }
 
 /** Client for the wardrobe-service (scan + garment CRUD). */
@@ -29,12 +35,14 @@ export class GarmentService {
     return this.http.post<ScanResult>('/api/scan', form);
   }
 
-  list(filter: WardrobeFilter = {}): Observable<Garment[]> {
+  list(filter: WardrobeFilter = {}, page: PageRequest = {}): Observable<Page<Garment>> {
     let params = new HttpParams();
     if (filter.category) params = params.set('category', filter.category);
     if (filter.color) params = params.set('color', filter.color);
     if (filter.season) params = params.set('season', filter.season);
-    return this.http.get<Garment[]>(this.base, { params });
+    if (page.page !== undefined) params = params.set('page', page.page);
+    if (page.size !== undefined) params = params.set('size', page.size);
+    return this.http.get<Page<Garment>>(this.base, { params });
   }
 
   create(request: CreateGarmentRequest): Observable<Garment> {

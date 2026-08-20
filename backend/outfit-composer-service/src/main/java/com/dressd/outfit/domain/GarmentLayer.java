@@ -5,6 +5,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.util.UUID;
 
 /**
@@ -19,14 +22,20 @@ public class GarmentLayer {
     private UUID garmentId;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(nullable = false, length = 16)
     private GarmentCategory category;
 
     @Column(nullable = false)
     private int zIndex;
 
+    @Column(name = "offset_x")
     private float offsetX;
+
+    @Column(name = "offset_y")
     private float offsetY;
+
+    @Column(name = "scale")
     private float scale = 1.0f;
 
     public GarmentLayer() {

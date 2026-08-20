@@ -3,19 +3,37 @@
 # Brings up Postgres, the three Spring Boot services, the Python recognition
 # sidecar, and the Angular web app behind nginx. The Java services run with the
 # `prod` profile so they talk to Postgres instead of the dev H2 files.
+#
+# Credentials come from .env (see .env.example). Requires BuildKit, which is the
+# default in current Docker, for the Maven cache mount in service.Dockerfile.
+#
+# NOTE ON AUTH: this stack runs with AUTH_MODE=DEV, which trusts the
+# X-Owner-Id header and is unauthenticated by design — it is a local dev
+# orchestration. A real deployment leaves AUTH_MODE unset so the `prod` profile's
+# TOKEN default applies, and sets AUTH_SECRET. See docs/SECURITY.md.
+
+x-service-env: &db-env
+  SPRING_PROFILES_ACTIVE: prod
+  DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-dressd}
+  DB_USER: ${POSTGRES_USER:-dressd}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:-dressd}
+  CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4200,http://localhost:8080}
+  AUTH_MODE: ${AUTH_MODE:-DEV}
+  AUTH_SECRET: ${AUTH_SECRET:-}
+
 services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: dressd
-      POSTGRES_USER: dressd
-      POSTGRES_PASSWORD: dressd
+      POSTGRES_DB: ${POSTGRES_DB:-dressd}
+      POSTGRES_USER: ${POSTGRES_USER:-dressd}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dressd}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dressd"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dressd}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -31,14 +49,11 @@ services:
       dockerfile: service.Dockerfile
       args:
         SERVICE: wardrobe-service
+        SERVICE_PORT: 8081
     environment:
-      SPRING_PROFILES_ACTIVE: prod
-      DB_URL: jdbc:postgresql://postgres:5432/dressd
-      DB_USER: dressd
-      DB_PASSWORD: dressd
+      <<: *db-env
       RECOGNITION_URL: http://recognition-service:8000
       STORAGE_ROOT: /data/media
-      CORS_ORIGINS: http://localhost:4200,http://localhost:8080
     ports:
       - "8081:8081"
     volumes:
@@ -46,8 +61,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      # Waiting for healthy, not merely started: the first scan after `up` would
+      # otherwise race a sidecar that has not finished booting.
       recognition-service:
-        condition: service_started
+        condition: service_healthy
 
   avatar-service:
     build:
@@ -55,12 +72,9 @@ services:
       dockerfile: service.Dockerfile
       args:
         SERVICE: avatar-service
+        SERVICE_PORT: 8082
     environment:
-      SPRING_PROFILES_ACTIVE: prod
-      DB_URL: jdbc:postgresql://postgres:5432/dressd
-      DB_USER: dressd
-      DB_PASSWORD: dressd
-      CORS_ORIGINS: http://localhost:4200,http://localhost:8080
+      <<: *db-env
     ports:
       - "8082:8082"
     depends_on:
@@ -73,12 +87,9 @@ services:
       dockerfile: service.Dockerfile
       args:
         SERVICE: outfit-composer-service
+        SERVICE_PORT: 8083
     environment:
-      SPRING_PROFILES_ACTIVE: prod
-      DB_URL: jdbc:postgresql://postgres:5432/dressd
-      DB_USER: dressd
-      DB_PASSWORD: dressd
-      CORS_ORIGINS: http://localhost:4200,http://localhost:8080
+      <<: *db-env
     ports:
       - "8083:8083"
     depends_on:
@@ -87,12 +98,17 @@ services:
 
   web:
     build: ./web
+    # The nginx image is unprivileged and listens on 8080; the published port is
+    # unchanged, so http://localhost:8080 still serves the app.
     ports:
-      - "8080:80"
+      - "8080:8080"
     depends_on:
-      - wardrobe-service
-      - avatar-service
-      - outfit-composer-service
+      wardrobe-service:
+        condition: service_healthy
+      avatar-service:
+        condition: service_healthy
+      outfit-composer-service:
+        condition: service_healthy
 
 volumes:
   pgdata:

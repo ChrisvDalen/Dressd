@@ -2,15 +2,17 @@ package com.dressd.wardrobe.api;
 
 import com.dressd.common.domain.GarmentCategory;
 import com.dressd.common.domain.Season;
-import com.dressd.common.web.OwnerContext;
+import com.dressd.common.web.CurrentOwner;
+import com.dressd.common.web.PageRequests;
+import com.dressd.common.web.PageResponse;
 import com.dressd.wardrobe.api.dto.CreateGarmentRequest;
 import com.dressd.wardrobe.api.dto.GarmentResponse;
 import com.dressd.wardrobe.api.dto.UpdateGarmentRequest;
 import com.dressd.wardrobe.service.GarmentService;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +20,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/garments")
 public class GarmentController {
 
+    private static final Sort NEWEST_FIRST = Sort.by(Sort.Direction.DESC, "updatedAt");
+
     private final GarmentService service;
 
     public GarmentController(GarmentService service) {
@@ -34,45 +37,42 @@ public class GarmentController {
     }
 
     @GetMapping
-    public List<GarmentResponse> list(
-            @RequestHeader(value = OwnerContext.OWNER_HEADER, required = false) String owner,
+    public PageResponse<GarmentResponse> list(
+            @CurrentOwner UUID ownerId,
             @RequestParam(required = false) GarmentCategory category,
             @RequestParam(required = false) String color,
-            @RequestParam(required = false) Season season) {
-        UUID ownerId = OwnerId.resolve(owner);
-        return service.search(ownerId, category, color, season).stream()
-                .map(GarmentResponse::from)
-                .toList();
+            @RequestParam(required = false) Season season,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return PageResponse.of(
+                service.search(ownerId, category, color, season, PageRequests.of(page, size, NEWEST_FIRST)),
+                GarmentResponse::from);
     }
 
     @GetMapping("/{id}")
-    public GarmentResponse get(
-            @RequestHeader(value = OwnerContext.OWNER_HEADER, required = false) String owner,
-            @PathVariable UUID id) {
-        return GarmentResponse.from(service.get(OwnerId.resolve(owner), id));
+    public GarmentResponse get(@CurrentOwner UUID ownerId, @PathVariable UUID id) {
+        return GarmentResponse.from(service.get(ownerId, id));
     }
 
     @PostMapping
     public ResponseEntity<GarmentResponse> create(
-            @RequestHeader(value = OwnerContext.OWNER_HEADER, required = false) String owner,
+            @CurrentOwner UUID ownerId,
             @Valid @RequestBody CreateGarmentRequest request) {
-        GarmentResponse body = GarmentResponse.from(service.create(OwnerId.resolve(owner), request));
+        GarmentResponse body = GarmentResponse.from(service.create(ownerId, request));
         return ResponseEntity.created(URI.create("/api/garments/" + body.id())).body(body);
     }
 
     @PatchMapping("/{id}")
     public GarmentResponse update(
-            @RequestHeader(value = OwnerContext.OWNER_HEADER, required = false) String owner,
+            @CurrentOwner UUID ownerId,
             @PathVariable UUID id,
-            @RequestBody UpdateGarmentRequest request) {
-        return GarmentResponse.from(service.update(OwnerId.resolve(owner), id, request));
+            @Valid @RequestBody UpdateGarmentRequest request) {
+        return GarmentResponse.from(service.update(ownerId, id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
-            @RequestHeader(value = OwnerContext.OWNER_HEADER, required = false) String owner,
-            @PathVariable UUID id) {
-        service.delete(OwnerId.resolve(owner), id);
+    public ResponseEntity<Void> delete(@CurrentOwner UUID ownerId, @PathVariable UUID id) {
+        service.delete(ownerId, id);
         return ResponseEntity.noContent().build();
     }
 }

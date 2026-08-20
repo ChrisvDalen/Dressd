@@ -2,12 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import {
-  Garment,
-  GarmentCategory,
-  Season,
-  WEARABLE_CATEGORIES,
-} from '../../core/models';
+import { Garment, GarmentCategory, Season, WEARABLE_CATEGORIES } from '../../core/models';
 import { WardrobeStore } from '../../core/wardrobe.store';
 
 /**
@@ -21,7 +16,9 @@ import { WardrobeStore } from '../../core/wardrobe.store';
   template: `
     <section>
       <header class="head">
-        <h2>Wardrobe <span class="count">{{ store.count() }}</span></h2>
+        <h2>
+          Wardrobe <span class="count">{{ store.count() }}</span>
+        </h2>
         <a routerLink="/scan" class="scan-cta">+ Scan item</a>
       </header>
 
@@ -49,6 +46,11 @@ import { WardrobeStore } from '../../core/wardrobe.store';
       @if (store.error()) {
         <p class="err">{{ store.error() }}</p>
       }
+      @if (store.truncated()) {
+        <p class="muted">
+          Showing the first {{ store.count() }} items — narrow the filters to see the rest.
+        </p>
+      }
 
       @if (store.loading()) {
         <p class="muted">Loading…</p>
@@ -68,7 +70,11 @@ import { WardrobeStore } from '../../core/wardrobe.store';
                     <option [ngValue]="c">{{ c }}</option>
                   }
                 </select>
-                <span class="swatch" [style.background]="g.colorTag || '#ccc'" [title]="g.colorTag || ''"></span>
+                <span
+                  class="swatch"
+                  [style.background]="g.colorTag || '#ccc'"
+                  [title]="g.colorTag || ''"
+                ></span>
                 <button class="del" (click)="remove(g)" aria-label="Delete">🗑</button>
               </figcaption>
             </figure>

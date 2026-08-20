@@ -1,5 +1,6 @@
 package com.dressd.avatar.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 /**
@@ -9,8 +10,13 @@ import jakarta.persistence.Embeddable;
 @Embeddable
 public class Proportions {
 
+    @Column(name = "height")
     private float height = 1.0f;
+
+    @Column(name = "shoulder_width")
     private float shoulderWidth = 1.0f;
+
+    @Column(name = "hip_width")
     private float hipWidth = 1.0f;
 
     public Proportions() {

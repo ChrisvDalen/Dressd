@@ -1,5 +1,6 @@
 package com.dressd.wardrobe.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 /**
@@ -10,9 +11,16 @@ import jakarta.persistence.Embeddable;
 @Embeddable
 public class AnchorPoints {
 
+    @Column(name = "shoulder_y")
     private float shoulderY = 0.20f;
+
+    @Column(name = "waist_y")
     private float waistY = 0.45f;
+
+    @Column(name = "hem_y")
     private float hemY = 0.70f;
+
+    @Column(name = "width_scale")
     private float widthScale = 1.0f;
 
     public AnchorPoints() {

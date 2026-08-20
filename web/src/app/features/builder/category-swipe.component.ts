@@ -52,7 +52,14 @@ const LABELS: Record<GarmentCategory, string> = {
           (keydown.arrowleft)="prev()"
           (keydown.arrowright)="next()"
         >
-          <button class="nav" (click)="prev()" [disabled]="items().length < 2" aria-label="Previous">‹</button>
+          <button
+            class="nav"
+            (click)="prev()"
+            [disabled]="items().length < 2"
+            aria-label="Previous"
+          >
+            ‹
+          </button>
 
           <div class="item">
             <img [src]="current()!.imageUrl" [alt]="label()" />
@@ -63,7 +70,9 @@ const LABELS: Record<GarmentCategory, string> = {
             </span>
           </div>
 
-          <button class="nav" (click)="next()" [disabled]="items().length < 2" aria-label="Next">›</button>
+          <button class="nav" (click)="next()" [disabled]="items().length < 2" aria-label="Next">
+            ›
+          </button>
         </div>
       }
     </div>

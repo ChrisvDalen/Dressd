@@ -1,12 +1,6 @@
 // Domain types mirrored from the backend (SPEC.md section 4).
 
-export type GarmentCategory =
-  | 'TOP'
-  | 'BOTTOM'
-  | 'SOCKS'
-  | 'LAYER'
-  | 'SHOES'
-  | 'ACCESSORY';
+export type GarmentCategory = 'TOP' | 'BOTTOM' | 'SOCKS' | 'LAYER' | 'SHOES' | 'ACCESSORY';
 
 export const WEARABLE_CATEGORIES: GarmentCategory[] = [
   'TOP',
@@ -21,6 +15,17 @@ export const WEARABLE_CATEGORIES: GarmentCategory[] = [
 export const SWIPE_CATEGORIES: GarmentCategory[] = ['LAYER', 'TOP', 'BOTTOM', 'SHOES', 'SOCKS'];
 
 export type Season = 'SUMMER' | 'WINTER' | 'ALL';
+
+/** Envelope every paginated list endpoint returns (com.dressd.common.web.PageResponse). */
+export interface Page<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}
 
 export type BodyType = 'SLIM' | 'AVERAGE' | 'CURVY' | 'CUSTOM';
 

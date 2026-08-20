@@ -19,6 +19,10 @@ import { AvatarCanvasComponent, PlacedGarment } from '../builder/avatar-canvas.c
         <a routerLink="/builder" class="cta">+ New outfit</a>
       </header>
 
+      @if (error()) {
+        <p class="err">{{ error() }}</p>
+      }
+
       @if (loading()) {
         <p class="muted">Loading…</p>
       } @else if (outfits().length === 0) {
@@ -35,6 +39,9 @@ import { AvatarCanvasComponent, PlacedGarment } from '../builder/avatar-canvas.c
                 <span>{{ o.name || 'Untitled outfit' }}</span>
                 <button class="del" (click)="remove(o)" aria-label="Delete">🗑</button>
               </figcaption>
+              @if (missingCount(o) > 0) {
+                <p class="missing">{{ missingCount(o) }} item(s) no longer in your wardrobe</p>
+              }
             </figure>
           }
         </div>
@@ -89,6 +96,14 @@ import { AvatarCanvasComponent, PlacedGarment } from '../builder/avatar-canvas.c
       .muted {
         color: #999;
       }
+      .err {
+        color: #c0392b;
+      }
+      .missing {
+        margin: 0.25rem 0 0;
+        font-size: 0.75rem;
+        color: #a0752b;
+      }
     `,
   ],
 })
@@ -98,6 +113,7 @@ export class OutfitsComponent implements OnInit {
 
   protected readonly outfits = signal<Outfit[]>([]);
   protected readonly loading = signal(true);
+  protected readonly error = signal<string | null>(null);
   private garmentIndex = computed(() => {
     const map = new Map<string, Garment>();
     for (const g of this.store.garments()) map.set(g.id, g);
@@ -107,7 +123,10 @@ export class OutfitsComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     await this.store.loadAll();
     try {
-      this.outfits.set(await firstValueFrom(this.outfitApi.list()));
+      const page = await firstValueFrom(this.outfitApi.list({ size: 200 }));
+      this.outfits.set(page.content);
+    } catch {
+      this.error.set('Could not load your outfits. Is the backend running?');
     } finally {
       this.loading.set(false);
     }
@@ -123,8 +142,22 @@ export class OutfitsComponent implements OnInit {
       .filter((x): x is PlacedGarment => x !== null);
   }
 
+  /**
+   * Layers whose garment has since been deleted. Garments and outfits live in
+   * separate services with no cross-service foreign key (docs/ADR.md, ADR-008),
+   * so a saved outfit can outlive an item — the gallery says so rather than
+   * quietly rendering a gap.
+   */
+  protected missingCount(outfit: Outfit): number {
+    return outfit.garmentLayers.length - this.layersFor(outfit).length;
+  }
+
   protected async remove(outfit: Outfit): Promise<void> {
-    await firstValueFrom(this.outfitApi.remove(outfit.id));
-    this.outfits.update((list) => list.filter((o) => o.id !== outfit.id));
+    try {
+      await firstValueFrom(this.outfitApi.remove(outfit.id));
+      this.outfits.update((list) => list.filter((o) => o.id !== outfit.id));
+    } catch {
+      this.error.set('Could not delete that outfit. Please try again.');
+    }
   }
 }

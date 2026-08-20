@@ -1,10 +1,10 @@
 package com.dressd.avatar.service;
 
-import com.dressd.avatar.api.NotFoundException;
 import com.dressd.avatar.api.dto.SaveAvatarRequest;
 import com.dressd.avatar.domain.Avatar;
 import com.dressd.avatar.domain.AvatarRepository;
 import com.dressd.avatar.domain.BodyTypeCatalog;
+import com.dressd.common.web.NotFoundException;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;

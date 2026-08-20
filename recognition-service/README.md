@@ -18,6 +18,25 @@ photo it returns a background-removed PNG plus suggested metadata.
 
 `GET /health` reports which background-removal backend is active.
 
+## Input limits
+
+The sidecar decodes attacker-supplied bytes, so uploads are vetted before they reach
+the decoder:
+
+| Rule                                                   | Response |
+| ------------------------------------------------------ | -------- |
+| Content type not `image/{jpeg,png,webp,heic}`           | `415`    |
+| Larger than 15MB — enforced *while streaming*, so the read aborts rather than buffering the whole body first | `413`    |
+| Empty body                                             | `400`    |
+| Unreadable/corrupt, or over 40 megapixels once decoded  | `422`    |
+
+The pixel ceiling is checked from the image header before any decode, which is what
+stops a small file that describes an enormous bitmap. `Image.MAX_IMAGE_PIXELS` is
+pinned to the same limit as a second line of defence.
+
+Failures log the incoming `traceparent`, so a rejected scan can be tied back to the
+wardrobe-service request that caused it.
+
 ## Pipeline
 
 1. **Background removal** — uses [`rembg`](https://github.com/danielgatis/rembg)
