@@ -39,18 +39,18 @@ public class GarmentController {
     @GetMapping
     public PageResponse<GarmentResponse> list(
             @CurrentOwner UUID ownerId,
-            @RequestParam(required = false) GarmentCategory category,
-            @RequestParam(required = false) String color,
-            @RequestParam(required = false) Season season,
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
+            @RequestParam(name = "category", required = false) GarmentCategory category,
+            @RequestParam(name = "color", required = false) String color,
+            @RequestParam(name = "season", required = false) Season season,
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "size", required = false) Integer size) {
         return PageResponse.of(
                 service.search(ownerId, category, color, season, PageRequests.of(page, size, NEWEST_FIRST)),
                 GarmentResponse::from);
     }
 
     @GetMapping("/{id}")
-    public GarmentResponse get(@CurrentOwner UUID ownerId, @PathVariable UUID id) {
+    public GarmentResponse get(@CurrentOwner UUID ownerId, @PathVariable("id") UUID id) {
         return GarmentResponse.from(service.get(ownerId, id));
     }
 
@@ -65,13 +65,13 @@ public class GarmentController {
     @PatchMapping("/{id}")
     public GarmentResponse update(
             @CurrentOwner UUID ownerId,
-            @PathVariable UUID id,
+            @PathVariable("id") UUID id,
             @Valid @RequestBody UpdateGarmentRequest request) {
         return GarmentResponse.from(service.update(ownerId, id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@CurrentOwner UUID ownerId, @PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@CurrentOwner UUID ownerId, @PathVariable("id") UUID id) {
         service.delete(ownerId, id);
         return ResponseEntity.noContent().build();
     }

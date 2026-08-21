@@ -36,15 +36,15 @@ public class OutfitController {
     @GetMapping
     public PageResponse<OutfitResponse> list(
             @CurrentOwner UUID ownerId,
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "size", required = false) Integer size) {
         return PageResponse.of(
                 service.list(ownerId, PageRequests.of(page, size, NEWEST_FIRST)),
                 OutfitResponse::from);
     }
 
     @GetMapping("/{id}")
-    public OutfitResponse get(@CurrentOwner UUID ownerId, @PathVariable UUID id) {
+    public OutfitResponse get(@CurrentOwner UUID ownerId, @PathVariable("id") UUID id) {
         return OutfitResponse.from(service.get(ownerId, id));
     }
 
@@ -59,13 +59,13 @@ public class OutfitController {
     @PutMapping("/{id}")
     public OutfitResponse update(
             @CurrentOwner UUID ownerId,
-            @PathVariable UUID id,
+            @PathVariable("id") UUID id,
             @Valid @RequestBody SaveOutfitRequest request) {
         return OutfitResponse.from(service.update(ownerId, id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@CurrentOwner UUID ownerId, @PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@CurrentOwner UUID ownerId, @PathVariable("id") UUID id) {
         service.delete(ownerId, id);
         return ResponseEntity.noContent().build();
     }
