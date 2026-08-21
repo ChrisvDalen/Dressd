@@ -112,7 +112,7 @@ jobs:
       # Building every image is what catches a Dockerfile that no longer works —
       # the compose file alone cannot.
       - name: Build recognition image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./recognition-service
           push: false
@@ -120,7 +120,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=recognition
 
       - name: Build web image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./web
           push: false
@@ -131,7 +131,7 @@ jobs:
       # SERVICE arg, and the backend job already compiles all three modules — so
       # building the most involved one is enough to prove the Dockerfile works.
       - name: Build service image (wardrobe-service)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./backend
           file: ./backend/service.Dockerfile
