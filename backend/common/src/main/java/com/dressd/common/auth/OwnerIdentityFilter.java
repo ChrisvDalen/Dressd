@@ -4,7 +4,7 @@ import com.dressd.common.web.ApiError;
 import com.dressd.common.web.BadRequestException;
 import com.dressd.common.web.OwnerContext;
 import com.dressd.common.web.UnauthorizedException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # Shared multi-stage build for the Spring Boot services.
 # Pass the module name via --build-arg SERVICE=<wardrobe-service|avatar-service|outfit-composer-service>.
-FROM maven:3.9-eclipse-temurin-25 AS build
+FROM maven:3.9.11-eclipse-temurin-26 AS build
 WORKDIR /workspace
 COPY . .
 ARG SERVICE
@@ -11,7 +11,7 @@ ARG SERVICE
 RUN --mount=type=cache,target=/root/.m2/repository \
     mvn -B -pl ${SERVICE} -am package -DskipTests
 
-FROM eclipse-temurin:25-jre
+FROM eclipse-temurin:26-jre
 # curl is needed for the container healthcheck below (~1MB).
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl \

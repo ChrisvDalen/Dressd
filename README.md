@@ -9,11 +9,11 @@ that turns a phone photo of a garment into a background-removed, auto-categorise
 colour-tagged item you can swipe onto a 2D avatar to build outfits — in real time,
 without a single GPU render on the server.
 
-![Java](https://img.shields.io/badge/Java-25-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.16-6DB33F)
+![Java](https://img.shields.io/badge/Java-26-orange)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F)
 ![Angular](https://img.shields.io/badge/Angular-22%20(zoneless)-DD0031)
 ![Node](https://img.shields.io/badge/Node-%E2%89%A522.22.3%20%2F%2024-339933)
-![Python](https://img.shields.io/badge/Python-3.11%20(FastAPI)-3776AB)
+![Python](https://img.shields.io/badge/Python-3.14%20(FastAPI)-3776AB)
 ![Postgres](https://img.shields.io/badge/Postgres-16-4169E1)
 ![Tests](https://img.shields.io/badge/tests-88%20green-brightgreen)
 ![Rendering](https://img.shields.io/badge/rendering-client--side%20SVG-blueviolet)
@@ -138,10 +138,10 @@ graph LR
       NginX[nginx :8080<br/>path routing · SPA fallback]
     end
     subgraph Services
-      W[wardrobe-service :8081<br/>Java 25 · Spring Boot 3.5]
-      A[avatar-service :8082<br/>Java 25 · Spring Boot 3.5]
-      O[outfit-composer-service :8083<br/>Java 25 · Spring Boot 3.5]
-      R[garment-recognition-service :8000<br/>Python 3.11 · FastAPI]
+      W[wardrobe-service :8081<br/>Java 26 · Spring Boot 4.1]
+      A[avatar-service :8082<br/>Java 26 · Spring Boot 4.1]
+      O[outfit-composer-service :8083<br/>Java 26 · Spring Boot 4.1]
+      R[garment-recognition-service :8000<br/>Python 3.14 · FastAPI]
     end
     subgraph State
       PG[(Postgres 16<br/>schema per service)]
@@ -246,20 +246,20 @@ resolve ([ADR-008](docs/ADR.md#adr-008--no-cross-service-referential-integrity))
 
 | Layer              | Choice                    | Version      | Rationale                                                    |
 | ------------------ | ------------------------- | ------------ | ------------------------------------------------------------ |
-| Backend language   | Java                      | **25**       | Latest GA JDK; records, sealed types, pattern matching        |
-| Backend framework  | Spring Boot               | **3.5.16**   | MVC + Data JPA + Validation + Actuator                       |
+| Backend language   | Java                      | **26**       | Current feature release; records, sealed types, pattern matching |
+| Backend framework  | Spring Boot               | **4.1.0**    | Modular MVC + Data JPA + Validation + Actuator starters      |
 | Migrations         | Flyway                    | —            | Schema is a reviewable artefact, not a Hibernate side effect  |
-| Build (backend)    | Maven                     | 3.9          | Multi-module reactor                                         |
+| Build (backend)    | Maven                     | 3.9.11       | Multi-module reactor                                         |
 | Web framework      | Angular                   | **22**       | Zoneless, standalone components, signals                     |
 | Web state          | NgRx Signal Store         | 21.1.1¹      | Signal-native store for the wardrobe cache                   |
 | Web tests          | Vitest                    | 4            | New `@angular/build:unit-test` runner (Karma retired)        |
 | Web language       | TypeScript                | 6            | Ships with Angular 22                                        |
-| Recognition        | Python + FastAPI          | 3.11         | Light segmentation + classification sidecar                  |
+| Recognition        | Python + FastAPI          | 3.14         | Light segmentation + classification sidecar                  |
 | Image processing   | Pillow (+ optional rembg) | —            | Offline colour-key fallback; rembg for quality               |
 | Database           | PostgreSQL / H2           | 16 / file    | Postgres in prod, H2 file in dev (zero infra)                |
 | Object storage     | Local FS / Blob / S3      | —            | `ObjectStorage` interface, pluggable                         |
 | Observability      | Micrometer + Prometheus   | —            | Metrics, plus trace ids across the service hops              |
-| Edge               | nginx                     | 1.27         | SPA hosting + reverse proxy                                  |
+| Edge               | nginx                     | 1.29         | SPA hosting + reverse proxy                                  |
 
 ¹ _NgRx trails Angular by a major. 21.1.1 works on Angular 22's stable signal APIs;
 install with `--legacy-peer-deps`._
@@ -269,7 +269,7 @@ install with `--legacy-peer-deps`._
 ```
 Dressd/
 ├── docs/                           # SPEC, ADRs, API, config, security, …
-├── backend/                        # Java 25 / Spring Boot 3.5 reactor
+├── backend/                        # Java 26 / Spring Boot 4.1 reactor
 │   ├── service.Dockerfile          # shared multi-stage build (ARG SERVICE)
 │   ├── common/                     # auth, error contract, pagination, CORS
 │   │                               #   (a Boot auto-configuration, not copy-paste)
