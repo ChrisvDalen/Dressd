@@ -1,7 +1,11 @@
 # syntax=docker/dockerfile:1
 # Shared multi-stage build for the Spring Boot services.
 # Pass the module name via --build-arg SERVICE=<wardrobe-service|avatar-service|outfit-composer-service>.
-FROM maven:3.9.11-eclipse-temurin-26 AS build
+FROM maven:3.9.11-eclipse-temurin-25 AS maven
+
+FROM eclipse-temurin:26-jdk AS build
+COPY --from=maven /usr/share/maven /usr/share/maven
+ENV PATH="/usr/share/maven/bin:${PATH}"
 WORKDIR /workspace
 COPY . .
 ARG SERVICE
