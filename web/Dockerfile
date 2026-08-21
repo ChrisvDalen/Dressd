@@ -7,7 +7,7 @@ RUN npm run build
 
 # The unprivileged variant runs as a non-root user and listens on 8080, since
 # binding port 80 would require root.
-FROM nginxinc/nginx-unprivileged:1.29-alpine
+FROM nginxinc/nginx-unprivileged:1.30-alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist/web/browser /usr/share/nginx/html
 
