@@ -71,7 +71,10 @@ class TokenAuthIntegrationTest {
         ResponseEntity<String> response = rest.exchange("/api/garments", HttpMethod.GET,
                 new HttpEntity<>(bearer(token)), String.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getStatusCode())
+                .withFailMessage("Authenticated list returned %s: %s",
+                        response.getStatusCode(), response.getBody())
+                .isEqualTo(HttpStatus.OK);
     }
 
     @Test

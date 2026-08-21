@@ -9,6 +9,7 @@ import com.dressd.wardrobe.api.dto.ScanResultResponse;
 import com.dressd.wardrobe.storage.StorageProperties;
 import java.nio.file.Path;
 import java.util.List;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,6 +44,9 @@ class WardrobeFlowIntegrationTest {
 
     @Autowired
     private StorageProperties storageProperties;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void scanThenConfirmThenFilter() {
@@ -176,7 +180,17 @@ class WardrobeFlowIntegrationTest {
     }
 
     private GarmentPage page(String uri) {
-        return rest.exchange(uri, HttpMethod.GET, HttpEntity.EMPTY, GARMENT_PAGE).getBody();
+        ResponseEntity<String> response = rest.exchange(
+                uri, HttpMethod.GET, HttpEntity.EMPTY, String.class);
+        assertThat(response.getStatusCode())
+                .withFailMessage("GET %s returned %s: %s", uri, response.getStatusCode(), response.getBody())
+                .isEqualTo(HttpStatus.OK);
+        try {
+            return objectMapper.readValue(response.getBody(),
+                    objectMapper.getTypeFactory().constructType(GARMENT_PAGE.getType()));
+        } catch (Exception exception) {
+            throw new AssertionError("Could not deserialize garment page: " + response.getBody(), exception);
+        }
     }
 
     private ScanResultResponse scan() {
