@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -25,6 +26,7 @@ import org.springframework.http.ResponseEntity;
                 "dressd.auth.mode=TOKEN",
                 "dressd.auth.secret=integration-test-secret-32-chars-min"
         })
+@AutoConfigureTestRestTemplate
 class TokenAuthIntegrationTest {
 
     private static final UUID OWNER = UUID.fromString("33333333-3333-3333-3333-333333333333");
