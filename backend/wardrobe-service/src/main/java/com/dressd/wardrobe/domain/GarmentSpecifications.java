@@ -20,14 +20,14 @@ public final class GarmentSpecifications {
 
     public static Specification<Garment> hasCategory(GarmentCategory category) {
         if (category == null) {
-            return null;
+            return Specification.unrestricted();
         }
         return (root, query, cb) -> cb.equal(root.get("category"), category);
     }
 
     public static Specification<Garment> hasSeason(Season season) {
         if (season == null) {
-            return null;
+            return Specification.unrestricted();
         }
         return (root, query, cb) -> cb.equal(root.get("season"), season);
     }
@@ -35,7 +35,7 @@ public final class GarmentSpecifications {
     /** Case-insensitive substring match on the colour tag (e.g. "blue" or "#33"). */
     public static Specification<Garment> colorMatches(String color) {
         if (color == null || color.isBlank()) {
-            return null;
+            return Specification.unrestricted();
         }
         String needle = "%" + color.toLowerCase() + "%";
         return (root, query, cb) -> cb.like(cb.lower(root.get("colorTag")), needle);
