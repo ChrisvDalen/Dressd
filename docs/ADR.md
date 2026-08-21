@@ -81,15 +81,15 @@ saved.
 
 ---
 
-## ADR-005 — Java 25 instead of the requested Java 26
+## ADR-005 — Java 26 feature-release baseline
 
-**Status:** Accepted
+**Status:** Superseded
 
-**Context:** Java 26 is not yet GA.
+**Context:** Java 26 is now generally available.
 
-**Decision:** Target Java 25 with Spring Boot 3.5.16.
+**Decision:** Target Java 26 with Spring Boot 4.1.
 
-**Consequences:** A one-line bump (`java.version`, base images) when 26 ships.
+**Consequences:** Build, CI and runtime images move together on the Java 26 baseline.
 
 ---
 

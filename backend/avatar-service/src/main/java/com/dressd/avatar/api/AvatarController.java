@@ -45,7 +45,7 @@ public class AvatarController {
     }
 
     @GetMapping("/{id}")
-    public AvatarResponse get(@CurrentOwner UUID ownerId, @PathVariable UUID id) {
+    public AvatarResponse get(@CurrentOwner UUID ownerId, @PathVariable("id") UUID id) {
         return AvatarResponse.from(service.get(ownerId, id));
     }
 
@@ -60,13 +60,13 @@ public class AvatarController {
     @PutMapping("/{id}")
     public AvatarResponse update(
             @CurrentOwner UUID ownerId,
-            @PathVariable UUID id,
+            @PathVariable("id") UUID id,
             @Valid @RequestBody SaveAvatarRequest request) {
         return AvatarResponse.from(service.update(ownerId, id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@CurrentOwner UUID ownerId, @PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@CurrentOwner UUID ownerId, @PathVariable("id") UUID id) {
         service.delete(ownerId, id);
         return ResponseEntity.noContent().build();
     }

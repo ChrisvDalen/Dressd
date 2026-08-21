@@ -47,7 +47,7 @@ public class GarmentService {
     @Transactional(readOnly = true)
     public Page<Garment> search(UUID ownerId, GarmentCategory category, String color, Season season,
                                 Pageable pageable) {
-        Specification<Garment> spec = Specification.where(GarmentSpecifications.ownedBy(ownerId))
+        Specification<Garment> spec = GarmentSpecifications.ownedBy(ownerId)
                 .and(GarmentSpecifications.hasCategory(category))
                 .and(GarmentSpecifications.colorMatches(color))
                 .and(GarmentSpecifications.hasSeason(season));

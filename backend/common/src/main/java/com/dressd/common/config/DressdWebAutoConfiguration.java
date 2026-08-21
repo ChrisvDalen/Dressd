@@ -5,7 +5,7 @@ import com.dressd.common.auth.OwnerAuthProperties;
 import com.dressd.common.auth.OwnerIdentityFilter;
 import com.dressd.common.auth.OwnerResolver;
 import com.dressd.common.web.GlobalExceptionHandler;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
