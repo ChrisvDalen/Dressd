@@ -37,12 +37,23 @@ jobs:
         working-directory: backend
         run: mvn -B --no-transfer-progress verify
 
+      - name: Print coverage summary
+        run: |
+          for csv in backend/*/target/site/jacoco/jacoco.csv; do
+            [ -f "$csv" ] || continue
+            module=$(basename "$(dirname "$(dirname "$csv")")")
+            miss=$(awk -F, 'NR>1{im+=$4; cm+=$5} END{printf "%d %d", im, cm}' "$csv")
+            echo "$module: missed=$miss"
+          done
+
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: backend-test-reports
-          path: backend/*/target/surefire-reports/
+          path: |
+            backend/*/target/surefire-reports/
+            backend/*/target/site/jacoco/
           if-no-files-found: ignore
           retention-days: 7
 
