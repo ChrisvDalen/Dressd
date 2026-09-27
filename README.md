@@ -10,7 +10,7 @@ colour-tagged item you can swipe onto a 2D avatar to build outfits — in real t
 without a single GPU render on the server.
 
 ![Java](https://img.shields.io/badge/Java-26-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F)
 ![Angular](https://img.shields.io/badge/Angular-22%20(zoneless)-DD0031)
 ![Node](https://img.shields.io/badge/Node-%E2%89%A522.22.3%20%2F%2024-339933)
 ![Python](https://img.shields.io/badge/Python-3.14%20(FastAPI)-3776AB)
@@ -247,11 +247,11 @@ resolve ([ADR-008](docs/ADR.md#adr-008--no-cross-service-referential-integrity))
 | Layer              | Choice                    | Version      | Rationale                                                    |
 | ------------------ | ------------------------- | ------------ | ------------------------------------------------------------ |
 | Backend language   | Java                      | **26**       | Current feature release; records, sealed types, pattern matching |
-| Backend framework  | Spring Boot               | **4.1.0**    | Modular MVC + Data JPA + Validation + Actuator starters      |
+| Backend framework  | Spring Boot               | **4.1.1**    | Modular MVC + Data JPA + Validation + Actuator starters      |
 | Migrations         | Flyway                    | —            | Schema is a reviewable artefact, not a Hibernate side effect  |
 | Build (backend)    | Maven                     | 3.9.11       | Multi-module reactor                                         |
 | Web framework      | Angular                   | **22**       | Zoneless, standalone components, signals                     |
-| Web state          | NgRx Signal Store         | 21.1.1¹      | Signal-native store for the wardrobe cache                   |
+| Web state          | NgRx Signal Store         | 22.0.1       | Signal-native store for the wardrobe cache                   |
 | Web tests          | Vitest                    | 4            | New `@angular/build:unit-test` runner (Karma retired)        |
 | Web language       | TypeScript                | 6            | Ships with Angular 22                                        |
 | Recognition        | Python + FastAPI          | 3.14         | Light segmentation + classification sidecar                  |
@@ -260,9 +260,6 @@ resolve ([ADR-008](docs/ADR.md#adr-008--no-cross-service-referential-integrity))
 | Object storage     | Local FS / Blob / S3      | —            | `ObjectStorage` interface, pluggable                         |
 | Observability      | Micrometer + Prometheus   | —            | Metrics, plus trace ids across the service hops              |
 | Edge               | nginx                     | 1.29         | SPA hosting + reverse proxy                                  |
-
-¹ _NgRx trails Angular by a major. 21.1.1 works on Angular 22's stable signal APIs;
-install with `--legacy-peer-deps`._
 
 ## Repository layout
 
@@ -306,7 +303,7 @@ mvn -pl outfit-composer-service spring-boot:run   # :8083
 
 # 3) Web (dev server proxies /api and /media to the services)
 cd web
-npm ci --legacy-peer-deps
+npm ci
 npm start                                         # http://localhost:4200
 ```
 
