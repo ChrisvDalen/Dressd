@@ -124,6 +124,60 @@ class OutfitFlowIntegrationTest {
                 .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
+    @Test
+    void rejectsAnOutfitWithMoreThanTheMaximumNumberOfLayers() {
+        // One over the documented cap: the client must not be able to stack an
+        // unbounded number of layers through the API.
+        List<GarmentLayerDto> layers = new java.util.ArrayList<>();
+        for (int i = 0; i <= 32; i++) {
+            layers.add(layer(GarmentCategory.TOP, i));
+        }
+        SaveOutfitRequest req = new SaveOutfitRequest(UUID.randomUUID(), "Too many", layers);
+
+        ResponseEntity<String> response = rest.postForEntity("/api/outfits", req, String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).contains("cannot have more than");
+    }
+
+    @Test
+    void updateReplacesTheWholeLayerSet() {
+        OutfitResponse created = rest.postForObject("/api/outfits",
+                new SaveOutfitRequest(UUID.randomUUID(), "Before",
+                        List.of(layer(GarmentCategory.TOP, 0))),
+                OutfitResponse.class);
+
+        SaveOutfitRequest req = new SaveOutfitRequest(UUID.randomUUID(), "After", List.of(
+                layer(GarmentCategory.SHOES, 1),
+                layer(GarmentCategory.BOTTOM, 0)
+        ));
+        ResponseEntity<OutfitResponse> updated = rest.exchange("/api/outfits/" + created.id(),
+                HttpMethod.PUT, new HttpEntity<>(req), OutfitResponse.class);
+
+        assertThat(updated.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(updated.getBody().name()).isEqualTo("After");
+        // The previous layer set is gone wholesale; only the new two remain,
+        // renumbered by z-index.
+        assertThat(updated.getBody().garmentLayers())
+                .extracting(GarmentLayerDto::category)
+                .containsExactly(GarmentCategory.BOTTOM, GarmentCategory.SHOES);
+    }
+
+    @Test
+    void deleteRemovesTheOutfitAndItsLayers() {
+        OutfitResponse created = rest.postForObject("/api/outfits",
+                new SaveOutfitRequest(UUID.randomUUID(), "Gone",
+                        List.of(layer(GarmentCategory.TOP, 0))),
+                OutfitResponse.class);
+
+        ResponseEntity<Void> deleted = rest.exchange("/api/outfits/" + created.id(),
+                HttpMethod.DELETE, HttpEntity.EMPTY, Void.class);
+        assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        assertThat(rest.getForEntity("/api/outfits/" + created.id(), String.class).getStatusCode())
+                .isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
     private static GarmentLayerDto layer(GarmentCategory category, int zIndex) {
         return new GarmentLayerDto(UUID.randomUUID(), category, zIndex, 0f, 0f, 1f);
     }
