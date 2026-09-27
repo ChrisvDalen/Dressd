@@ -1,5 +1,7 @@
 server:
   port: 8083
+  # Finish in-flight requests on SIGTERM (deploy, compose down) instead of dropping them.
+  shutdown: graceful
 
 spring:
   application:

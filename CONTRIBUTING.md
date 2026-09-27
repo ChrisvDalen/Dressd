@@ -38,7 +38,7 @@ Everything CI runs, you can run locally:
 cd backend && mvn verify
 
 # Web
-cd web && npm ci --legacy-peer-deps && npm test && npm run format:check
+cd web && npm ci && npm test && npm run format:check
 
 # Recognition sidecar
 cd recognition-service

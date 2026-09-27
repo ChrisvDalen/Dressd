@@ -3,7 +3,6 @@
 | Symptom                                                       | Likely cause                          | Fix                                                                                       |
 | ------------------------------------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `ng` fails: "requires Node ≥ 22.22.3"                         | Old Node                              | Use Node 24 (`nvm use 24`)                                                                |
-| `npm install` peer-dep error on `@ngrx/signals`               | No NgRx v22 yet                       | `npm install --legacy-peer-deps`                                                           |
 | Service exits at startup: "requires dressd.auth.secret"       | `TOKEN` mode with no secret           | Set `AUTH_SECRET` (≥32 chars), or `AUTH_MODE=DEV` locally. This failure is deliberate.     |
 | Every API call returns `401`                                  | `TOKEN` mode, no bearer token         | Mint one with `OwnerTokenTool` ([API.md](API.md#authentication)), or use `DEV` mode         |
 | `401` even though `X-Owner-Id` is set                         | `TOKEN` mode ignores that header      | By design ([SECURITY.md](SECURITY.md)); send a bearer token                                |
